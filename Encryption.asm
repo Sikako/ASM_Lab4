@@ -11,18 +11,30 @@ BUFMAX = 128        ; maximum buffer size
 sPrompt  BYTE  "Enter the plain text: ",0
 sEncrypt BYTE  "Cipher text:          ",0
 sDecrypt BYTE  "Decrypted:            ",0
+sKey     BYTE  "Enter the key: ",0
 buffer   BYTE   BUFMAX+1 DUP(0)
 bufSize  DWORD  ?
 
 .code
 main PROC
     call    InputTheString      ; input the plain text
+    call    InputTheKey
     call    TranslateBuffer ; encrypt the buffer
     mov edx,OFFSET sEncrypt ; display encrypted message
     call    DisplayMessage
 
     exit
 main ENDP
+
+
+InputTheKey    PROC
+    pushad
+    mov edx, OFFSET sKey    ; display a key
+    call WriteString
+    mov ecx,BUFMAX
+    popad
+    ret
+InputTheKey    ENDP
 
 ;-----------------------------------------------------
 InputTheString PROC
