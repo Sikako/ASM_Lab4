@@ -13,6 +13,8 @@ sEncrypt BYTE  "Cipher text:          ",0
 sDecrypt BYTE  "Decrypted:            ",0
 sKey     BYTE  "Enter the key: ",0
 buffer   BYTE   BUFMAX+1 DUP(0)
+K        BYTE   BUFMAX+1 DUP(0)
+KSize    DWORD  ?
 bufSize  DWORD  ?
 
 .code
@@ -32,6 +34,10 @@ InputTheKey    PROC
     mov edx, OFFSET sKey    ; display a key
     call WriteString
     mov ecx,BUFMAX
+    mov edx, OFFSET K
+    call ReadString
+    mov KSize, eax
+    call    Crlf
     popad
     ret
 InputTheKey    ENDP
