@@ -4,6 +4,7 @@
 ; encryption using the XOR instruction.
 
 INCLUDE Irvine32.inc
+KEY = 239           ; any value between 1-255
 BUFMAX = 128        ; maximum buffer size
 
 .data
@@ -12,15 +13,12 @@ sEncrypt BYTE  "Cipher text:          ",0
 sDecrypt BYTE  "Decrypted:            ",0
 buffer   BYTE   BUFMAX+1 DUP(0)
 bufSize  DWORD  ?
-sKey     BYTE  "Enter the key:        ",0
-key      BYTE   BUFMAX+1 DUP(0)
-keySize  DWORD  ?
 
 .code
 main PROC
-    call    InputTheString          ; input the plain text
-    call    TranslateBuffer         ; encrypt the buffer
-    mov     edx,OFFSET sEncrypt     ; display encrypted message
+    call    InputTheString      ; input the plain text
+    call    TranslateBuffer ; encrypt the buffer
+    mov edx,OFFSET sEncrypt ; display encrypted message
     call    DisplayMessage
 
     exit
@@ -35,32 +33,12 @@ InputTheString PROC
 ; Returns: nothing
 ;-----------------------------------------------------
     pushad
-    mov     edx,OFFSET sPrompt  ; display a prompt
+    mov edx,OFFSET sPrompt  ; display a prompt
     call    WriteString
-    mov     ecx,BUFMAX      ; maximum character count
-    mov     edx,OFFSET buffer   ; point to the buffer
+    mov ecx,BUFMAX      ; maximum character count
+    mov edx,OFFSET buffer   ; point to the buffer
     call    ReadString          ; input the string
-    mov     bufSize,eax         ; save the length
-    call    Crlf
-    popad
-    ret
-InputTheString ENDP
-
-;-----------------------------------------------------
-InputTheKey PROC
-;
-; Prompts user for a key. Saves the key
-; and its length.
-; Receives: nothing
-; Returns: nothing
-;-----------------------------------------------------
-    pushad
-    mov     edx,OFFSET sKey       ; display a prompt
-    call    WriteString
-    mov     ecx,BUFMAX      ; maximum character count
-    mov     edx,OFFSET key      ; point to the buffer
-    call    ReadString          ; input the key
-    mov     keySize,eax         ; save the length
+    mov bufSize,eax         ; save the length
     call    Crlf
     popad
     ret
