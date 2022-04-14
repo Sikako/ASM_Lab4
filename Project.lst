@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/13/22 14:08:38
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 13:43:50
 Encryption.asm						     Page 1 - 1
 
 
@@ -44,82 +44,137 @@ Encryption.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 00
- 00000045  00000081 [		buffer   BYTE   BUFMAX+1 DUP(0)
+ 00000045 45 6E 74 65 72	sKey     BYTE  "Enter the key: ",0
+	   20 74 68 65 20
+	   6B 65 79 3A 20
+	   00
+ 00000055  00000081 [		buffer   BYTE   BUFMAX+1 DUP(0)
 	    00
 	   ]
- 000000C6 00000000		bufSize  DWORD  ?
+ 000000D6  00000081 [		K        BYTE   BUFMAX+1 DUP(0)
+	    00
+	   ]
+ 00000157 00000000		KSize    DWORD  ?
+ 0000015B 00000000		bufSize  DWORD  ?
 
  00000000			.code
  00000000			main PROC
- 00000000  E8 00000016		    call    InputTheString      ; input the plain text
- 00000005  E8 00000053		    call    TranslateBuffer ; encrypt the buffer
- 0000000A  BA 00000017 R	    mov edx,OFFSET sEncrypt ; display encrypted message
- 0000000F  E8 0000002D		    call    DisplayMessage
+ 00000000  E8 00000041		    call    InputTheString      ; input the plain text
+ 00000005  E8 00000016		    call    InputTheKey
+ 0000000A  E8 00000079		    call    TranslateBuffer ; encrypt the buffer
+ 0000000F  BA 00000017 R	    mov edx,OFFSET sEncrypt ; display encrypted message
+ 00000014  E8 00000053		    call    DisplayMessage
 
 				    exit
- 00000014  6A 00	   *	    push   +000000000h
- 00000016  E8 00000000 E   *	    call   ExitProcess
- 0000001B			main ENDP
+ 00000019  6A 00	   *	    push   +000000000h
+ 0000001B  E8 00000000 E   *	    call   ExitProcess
+ 00000020			main ENDP
+
+
+ 00000020			InputTheKey    PROC
+ 00000020  60			    pushad
+ 00000021  BA 00000045 R	    mov edx, OFFSET sKey    ; display a key
+ 00000026  E8 00000000 E	    call WriteString
+ 0000002B  B9 00000080		    mov ecx,BUFMAX
+ 00000030  BA 000000D6 R	    mov edx, OFFSET K
+ 00000035  E8 00000000 E	    call ReadString
+ 0000003A  A3 00000157 R	    mov KSize, eax
+ 0000003F  E8 00000000 E	    call    Crlf
+ 00000044  61			    popad
+ 00000045  C3			    ret
+ 00000046			InputTheKey    ENDP
 
 				;-----------------------------------------------------
- 0000001B			InputTheString PROC
+ 00000046			InputTheString PROC
 				;
 				; Prompts user for a plaintext string. Saves the string 
 				; and its length.
 				; Receives: nothing
 				; Returns: nothing
 				;-----------------------------------------------------
- 0000001B  60			    pushad
- 0000001C  BA 00000000 R	    mov edx,OFFSET sPrompt  ; display a prompt
- 00000021  E8 00000000 E	    call    WriteString
- 00000026  B9 00000080		    mov ecx,BUFMAX      ; maximum character count
- 0000002B  BA 00000045 R	    mov edx,OFFSET buffer   ; point to the buffer
- 00000030  E8 00000000 E	    call    ReadString          ; input the string
- 00000035  A3 000000C6 R	    mov bufSize,eax         ; save the length
- 0000003A  E8 00000000 E	    call    Crlf
- 0000003F  61			    popad
- 00000040  C3			    ret
- 00000041			InputTheString ENDP
+ 00000046  60			    pushad
+ 00000047  BA 00000000 R	    mov edx,OFFSET sPrompt  ; display a prompt
+ 0000004C  E8 00000000 E	    call    WriteString
+ 00000051  B9 00000080		    mov ecx,BUFMAX      ; maximum character count
+ 00000056  BA 00000055 R	    mov edx,OFFSET buffer   ; point to the buffer
+ 0000005B  E8 00000000 E	    call    ReadString          ; input the string
+ 00000060  A3 0000015B R	    mov bufSize,eax         ; save the length
+ 00000065  E8 00000000 E	    call    Crlf
+ 0000006A  61			    popad
+ 0000006B  C3			    ret
+ 0000006C			InputTheString ENDP
 
 				;-----------------------------------------------------
- 00000041			DisplayMessage PROC
+ 0000006C			DisplayMessage PROC
 				;
 				; Displays the encrypted or decrypted message.
 				; Receives: EDX points to the message
 				; Returns:  nothing
 				;-----------------------------------------------------
- 00000041  60			    pushad
- 00000042  E8 00000000 E	    call    WriteString
- 00000047  BA 00000045 R	    mov edx,OFFSET buffer   ; display the buffer
- 0000004C  E8 00000000 E	    call    WriteString
- 00000051  E8 00000000 E	    call    Crlf
- 00000056  E8 00000000 E	    call    Crlf
- 0000005B  61			    popad
- 0000005C  C3			    ret
- 0000005D			DisplayMessage ENDP
+ 0000006C  60			    pushad
+ 0000006D  E8 00000000 E	    call    WriteString
+ 00000072  BA 00000055 R	    mov edx,OFFSET buffer   ; display the buffer
+ 00000077  E8 00000000 E	    call    WriteString
+ 0000007C  E8 00000000 E	    call    Crlf
+ 00000081  E8 00000000 E	    call    Crlf
+ 00000086  61			    popad
+ 00000087  C3			    ret
+ 00000088			DisplayMessage ENDP
 
 				;-----------------------------------------------------
- 0000005D			TranslateBuffer PROC
+ 00000088			TranslateBuffer PROC
 				;
 				; Translates the string by exclusive-ORing each
 				; byte with the encryption key byte.
 				; Receives: nothing
 				; Returns: nothing
 				;-----------------------------------------------------
- 0000005D  60			    pushad
- 0000005E  8B 0D 000000C6 R	    mov ecx,bufSize     ; loop counter
- 00000064  BE 00000000		    mov esi,0           ; index 0 in buffer
- 00000069			L1:
- 00000069  80 B6 00000045 R	    xor buffer[esi],KEY ; translate a byte
-	   EF
- 00000070  46			    inc esi             ; point to next byte
- 00000071  E2 F6		    loop    L1
+ 00000088  60			    pushad
+ 00000089  8B 0D 0000015B R	    mov ecx, bufSize
+ 0000008F  BE 00000000		    mov esi,0
+ 00000094  B8 00000000		    mov eax,0
+ 00000099			L1:
+ 00000099  3B 35 00000157 R	    cmp esi, KSize
+ 0000009F  74 11		    je ini
+ 000000A1  8A 96 000000D6 R	    mov dl, K[esi]
+ 000000A7  30 90 00000055 R	    xor buffer[eax], dl
+ 000000AD  46			    inc esi
+ 000000AE  E2 E9		    loop L1
+ 000000B0  EB 07		    jmp Re
+ 000000B2			ini:
+ 000000B2  BE 00000000		    mov esi,0
+ 000000B7  EB E0		    jmp L1
+				;    mov ecx,bufSize     ; loop counter
+				;   mov esi,0           ; index 0 in buffer
+				;L1:
+				;    xor buffer[esi],KEY ; translate a byte
+				;    inc esi             ; point to next byte
+				;    loop    L1
+ 000000B9			Re:
+ 000000B9  61			    popad
+ 000000BA  C3			    ret
+ 000000BB			TranslateBuffer ENDP
 
- 00000073  61			    popad
- 00000074  C3			    ret
- 00000075			TranslateBuffer ENDP
+				;TranslateBuffer PROC
+				;
+				; Translates the string by exclusive-ORing each
+				; byte with the encryption key byte.
+				; Receives: nothing
+				; Returns: nothing
+				;-----------------------------------------------------
+				;    pushad
+				;    mov ecx,bufSize     ; loop counter
+				;    mov esi,0           ; index 0 in buffer
+				;L1:
+				;    xor buffer[esi],KEY ; translate a byte
+				;    inc esi             ; point to next byte
+				;    loop    L1
+
+				;    popad
+				;    ret
+				;TranslateBuffer ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/13/22 14:08:38
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 13:43:50
 Encryption.asm						     Symbols 2 - 1
 
 
@@ -213,8 +268,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000000CA Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000075 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000015F Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000BB Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -228,7 +283,7 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DisplayMessage . . . . . . . . .	P Near	 00000041 _TEXT	Length= 0000001C Public STDCALL
+DisplayMessage . . . . . . . . .	P Near	 0000006C _TEXT	Length= 0000001C Public STDCALL
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -261,7 +316,8 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-InputTheString . . . . . . . . .	P Near	 0000001B _TEXT	Length= 00000026 Public STDCALL
+InputTheKey  . . . . . . . . . .	P Near	 00000020 _TEXT	Length= 00000026 Public STDCALL
+InputTheString . . . . . . . . .	P Near	 00000046 _TEXT	Length= 00000026 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -305,8 +361,10 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-TranslateBuffer  . . . . . . . .	P Near	 0000005D _TEXT	Length= 00000018 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 00000069 _TEXT	
+TranslateBuffer  . . . . . . . .	P Near	 00000088 _TEXT	Length= 00000033 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000099 _TEXT	
+  ini  . . . . . . . . . . . . .	L Near	 000000B2 _TEXT	
+  Re . . . . . . . . . . . . . .	L Near	 000000B9 _TEXT	
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -325,7 +383,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001B Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000020 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -417,6 +475,8 @@ KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h
 KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 KEY  . . . . . . . . . . . . . .	Number	 000000EFh   
+KSize  . . . . . . . . . . . . .	DWord	 00000157 _DATA	
+K  . . . . . . . . . . . . . . .	Byte	 000000D6 _DATA	
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
@@ -549,8 +609,8 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-bufSize  . . . . . . . . . . . .	DWord	 000000C6 _DATA	
-buffer . . . . . . . . . . . . .	Byte	 00000045 _DATA	
+bufSize  . . . . . . . . . . . .	DWord	 0000015B _DATA	
+buffer . . . . . . . . . . . . .	Byte	 00000055 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
@@ -565,6 +625,7 @@ magenta  . . . . . . . . . . . .	Number	 00000005h
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 sDecrypt . . . . . . . . . . . .	Byte	 0000002E _DATA	
 sEncrypt . . . . . . . . . . . .	Byte	 00000017 _DATA	
+sKey . . . . . . . . . . . . . .	Byte	 00000045 _DATA	
 sPrompt  . . . . . . . . . . . .	Byte	 00000000 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
