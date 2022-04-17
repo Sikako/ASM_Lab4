@@ -4,7 +4,6 @@
 ; encryption using the XOR instruction.
 
 INCLUDE Irvine32.inc
-KEY = 239           ; any value between 1-255
 BUFMAX = 128        ; maximum buffer size
 
 .data
@@ -90,45 +89,23 @@ TranslateBuffer PROC
     pushad
     mov ecx, bufSize
     mov esi,0
-    mov eax,0
+    mov edi,0
 L1:
     cmp esi, KSize
     je ini
     mov dl, K[esi]
-    xor buffer[eax], dl
+    xor buffer[edi], dl
     inc esi
+    inc edi
     loop L1
     jmp Re
 ini:
     mov esi,0
     jmp L1
-;    mov ecx,bufSize     ; loop counter
-;   mov esi,0           ; index 0 in buffer
-;L1:
-;    xor buffer[esi],KEY ; translate a byte
-;    inc esi             ; point to next byte
-;    loop    L1
+
 Re:
     popad
     ret
 TranslateBuffer ENDP
 
-;TranslateBuffer PROC
-;
-; Translates the string by exclusive-ORing each
-; byte with the encryption key byte.
-; Receives: nothing
-; Returns: nothing
-;-----------------------------------------------------
-;    pushad
-;    mov ecx,bufSize     ; loop counter
-;    mov esi,0           ; index 0 in buffer
-;L1:
-;    xor buffer[esi],KEY ; translate a byte
-;    inc esi             ; point to next byte
-;    loop    L1
-
-;    popad
-;    ret
-;TranslateBuffer ENDP
 END main

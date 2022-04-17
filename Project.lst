@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 13:43:50
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 19:53:07
 Encryption.asm						     Page 1 - 1
 
 
@@ -25,7 +25,6 @@ Encryption.asm						     Page 1 - 1
 			      C .NOLIST
 			      C .LIST
 			      C 
- = 000000EF			KEY = 239           ; any value between 1-255
  = 00000080			BUFMAX = 128        ; maximum buffer size
 
  00000000			.data
@@ -132,49 +131,27 @@ Encryption.asm						     Page 1 - 1
  00000088  60			    pushad
  00000089  8B 0D 0000015B R	    mov ecx, bufSize
  0000008F  BE 00000000		    mov esi,0
- 00000094  B8 00000000		    mov eax,0
+ 00000094  BF 00000000		    mov edi,0
  00000099			L1:
  00000099  3B 35 00000157 R	    cmp esi, KSize
- 0000009F  74 11		    je ini
+ 0000009F  74 12		    je ini
  000000A1  8A 96 000000D6 R	    mov dl, K[esi]
- 000000A7  30 90 00000055 R	    xor buffer[eax], dl
+ 000000A7  30 97 00000055 R	    xor buffer[edi], dl
  000000AD  46			    inc esi
- 000000AE  E2 E9		    loop L1
- 000000B0  EB 07		    jmp Re
- 000000B2			ini:
- 000000B2  BE 00000000		    mov esi,0
- 000000B7  EB E0		    jmp L1
-				;    mov ecx,bufSize     ; loop counter
-				;   mov esi,0           ; index 0 in buffer
-				;L1:
-				;    xor buffer[esi],KEY ; translate a byte
-				;    inc esi             ; point to next byte
-				;    loop    L1
- 000000B9			Re:
- 000000B9  61			    popad
- 000000BA  C3			    ret
- 000000BB			TranslateBuffer ENDP
+ 000000AE  47			    inc edi
+ 000000AF  E2 E8		    loop L1
+ 000000B1  EB 07		    jmp Re
+ 000000B3			ini:
+ 000000B3  BE 00000000		    mov esi,0
+ 000000B8  EB DF		    jmp L1
 
-				;TranslateBuffer PROC
-				;
-				; Translates the string by exclusive-ORing each
-				; byte with the encryption key byte.
-				; Receives: nothing
-				; Returns: nothing
-				;-----------------------------------------------------
-				;    pushad
-				;    mov ecx,bufSize     ; loop counter
-				;    mov esi,0           ; index 0 in buffer
-				;L1:
-				;    xor buffer[esi],KEY ; translate a byte
-				;    inc esi             ; point to next byte
-				;    loop    L1
+ 000000BA			Re:
+ 000000BA  61			    popad
+ 000000BB  C3			    ret
+ 000000BC			TranslateBuffer ENDP
 
-				;    popad
-				;    ret
-				;TranslateBuffer ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 13:43:50
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/14/22 19:53:07
 Encryption.asm						     Symbols 2 - 1
 
 
@@ -269,7 +246,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000015F Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000BB Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000BC Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -361,10 +338,10 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-TranslateBuffer  . . . . . . . .	P Near	 00000088 _TEXT	Length= 00000033 Public STDCALL
+TranslateBuffer  . . . . . . . .	P Near	 00000088 _TEXT	Length= 00000034 Public STDCALL
   L1 . . . . . . . . . . . . . .	L Near	 00000099 _TEXT	
-  ini  . . . . . . . . . . . . .	L Near	 000000B2 _TEXT	
-  Re . . . . . . . . . . . . . .	L Near	 000000B9 _TEXT	
+  ini  . . . . . . . . . . . . .	L Near	 000000B3 _TEXT	
+  Re . . . . . . . . . . . . . .	L Near	 000000BA _TEXT	
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -474,7 +451,6 @@ INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h
 KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
 KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
-KEY  . . . . . . . . . . . . . .	Number	 000000EFh   
 KSize  . . . . . . . . . . . . .	DWord	 00000157 _DATA	
 K  . . . . . . . . . . . . . . .	Byte	 000000D6 _DATA	
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
